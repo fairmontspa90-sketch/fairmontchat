@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fairmont Baku Spa - Virtual Assistent</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-width: 100%;
+            margin: 0 auto;
+            background: linear-gradient(to bottom, #fef3c7, #ffffff);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            display: flex;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.bot {
+            justify-content: flex-start;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 80%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            word-wrap: break-word;
+            white-space: pre-line;
+            line-height: 1.6;
+        }
+
+        .message.bot .message-content {
+            background: white;
+            color: #1f2937;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid #fde68a;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(217, 119, 6, 0.3);
+        }
+
+        .quick-questions {
+            padding: 15px 20px;
+            background: rgba(254, 243, 199, 0.5);
+            border-top: 1px solid #fde68a;
+        }
+
+        .quick-questions-title {
+            font-size: 13px;
+            color: #78350f;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .quick-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .quick-btn {
+            background: white;
+            color: #d97706;
+            border: 1px solid #fde68a;
+            padding: 10px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .quick-btn:hover {
+            background: #fef3c7;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .input-container {
+            padding: 20px;
+            background: white;
+            border-top: 2px solid #fde68a;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        #userInput {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #fde68a;
+            border-radius: 25px;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        #userInput:focus {
+            border-color: #d97706;
+            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+        }
+
+        #sendBtn {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+        }
+
+        #sendBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(217, 119, 6, 0.4);
+        }
+
+        .contact-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #fde68a;
+        }
+
+        .contact-link {
+            color: #d97706;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .contact-link:hover {
+            color: #b45309;
+            transform: translateY(-2px);
+        }
+
+        .typing-indicator {
+            display: none;
+            justify-content: flex-start;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .typing-indicator.show {
+            display: flex;
+        }
+
+        .typing-content {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid #fde68a;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 5px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #d97706;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes bounce {
+            0%, 80%, 100% {
+                transform: scale(0);
+            }
+            40% {
+                transform: scale(1);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            .message-content {
+                max-width: 90%;
+                padding: 12px 16px;
+            }
+            
+            .quick-btn {
+                font-size: 12px;
+                padding: 8px 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌟 Fairmont Baku Carol Joy Spa</h1>
+            <p>Virtual Assistent - Sizə kömək etməyə hazırıq!</p>
+        </div>
+
+        <div class="chat-container" id="chatContainer">
+            <div class="message bot">
+                <div class="message-content">
+                    Salam! Fairmont Baku Carol Joy Spa-ya xoş gəlmisiniz! 🌟 Sizə necə kömək edə bilərəm?
+                </div>
+            </div>
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="typing-content">
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="quick-questions" id="quickQuestions">
+            <div class="quick-questions-title">⚡ Tez-tez verilən suallar:</div>
+            <div class="quick-buttons">
+                <button class="quick-btn" onclick="askQuestion('İş saatları')">İş saatları</button>
+                <button class="quick-btn" onclick="askQuestion('Qiymətlər')">Qiymətlər</button>
+                <button class="quick-btn" onclick="askQuestion('Rezervasiya')">Rezervasiya</button>
+                <button class="quick-btn" onclick="askQuestion('Üzvlük')">Üzvlük</button>
+                <button class="quick-btn" onclick="askQuestion('Hamam')">Hamam</button>
+                <button class="quick-btn" onclick="askQuestion('Kollagen')">Kollagen</button>
+            </div>
+        </div>
+
+        <div class="input-container">
+            <div class="input-wrapper">
+                <input 
+                    type="text" 
+                    id="userInput" 
+                    placeholder="Sualınızı yazın..."
+                    onkeypress="handleKeyPress(event)"
+                >
+                <button id="sendBtn" onclick="sendMessage()">Göndər</button>
+            </div>
+            <div class="contact-links">
+                <a href="tel:+994125654846" class="contact-link">📞 Zəng</a>
+                <a href="https://wa.me/994512063737" class="contact-link" target="_blank">💬 WhatsApp</a>
+                <a href="mailto:spareservation@fairmont.com" class="contact-link">📧 Email</a>
+                <a href="https://www.fairmont.com/baku" class="contact-link" target="_blank">🌐 Web</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const faqData = {
+            "saat": {
+                keywords: ["saat", "iş saatı", "açıq", "bağlı", "nə vaxt", "vaxt", "ne zaman", "saat neçə"],
+                answer: "📅 **İş Saatlarımız:**\n\n🏋️ **Gym:** 24 saat açıqdır\n\n💎 **Gold və Diamond üzvlər:** Bütün sahələrə 24 saat giriş\n\n⭐ **Silver üzvlər və qonaqlar:**\n• SPA prosedurları: 10:00 - 21:00\n• Fitness, hovuz və digər sahələr: 06:30 - 22:00"
+            },
+            "qiymət": {
+                keywords: ["qiymət", "məbləğ", "pul", "xərc", "dəyər", "nə qədər", "fiyat", "price"],
+                answer: "💰 **Əsas Xidmətlərimiz:**\n\n**Üz Qulluğu:**\n• Pure Collagen Facial - 60 dəq\n• 24 Carat Gold Facial - 60 dəq\n• Kollagen & Vitamin C - 90 dəq (250 AZN)\n• Express Kollagen - 30 dəq (90 AZN)\n\n**Masaj:**\n• Stress Release - 60/80 dəq\n• Deep Tissue - 60/80 dəq\n• Hot Stone - 60/80 dəq\n\n**Hamam:**\n• Body Treatment - 40 dəq\n• Signature Hammam - 60 dəq\n\n📞 Dəqiq qiymətlər üçün: +994 12 565 48 46"
+            },
+            "xidmət": {
+                keywords: ["xidmət", "masaj", "hamam", "sauna", "üz baxım", "nə var", "hansı", "ne var", "treatment"],
+                answer: "✨ **Carol Joy Spa Xidmətlərimiz:**\n\n**Üz Qulluğu:**\n• Kollagen texnologiyası ilə üz qulluğu\n• 24K qızıl üz maskası\n• Anti-age prosedurlar\n\n**Bədən Qulluğu:**\n• Aromaterapi masaj\n• Hot stone masaj\n• Deep tissue masaj\n• Bali masajı\n\n**Türk Hamamı:**\n• Ənənəvi kese və köpük masajı\n• Bədən maskası\n\n**Əlavə:**\n• Manikür & Pedikür\n• Spa paketləri (2-5 saat)\n• Cütlük prosedurları"
+            },
+            "rezerv": {
+                keywords: ["rezerv", "rezervasiya", "sifariş", "qeyd", "görüş", "randevu", "appointment"],
+                answer: "📞 **Rezervasiya:**\n\n🔹 **Telefon:** +994 12 565 48 46\n🔹 **WhatsApp:** +994 51 206 37 37\n🔹 **Email:** spareservation@fairmont.com\n\n⚠️ **Ləğvetmə qaydası:**\n• Ləğv və ya dəyişiklik üçün minimum 4 saat əvvəl xəbər verin\n• Xəbərdarlıq olmadan gəlməmə 100% ödəniş tələb edir\n\n💡 Əvvəlcədən rezervasiya tövsiyə olunur!"
+            },
+            "ünvan": {
+                keywords: ["ünvan", "yer", "yerdəyir", "harada", "məkan", "lokasiya", "adres", "address"],
+                answer: "📍 **Ünvanımız:**\n\nFairmont Baku, Flame Towers\nMehdi Hüseyn küçəsi 1A\nBakı, Azərbaycan\n\n🏢 Spa mərkəzi otellin 5-ci mərtəbəsindədir\n\n🚗 Ödənişsiz parkinq mövcuddur (üzvlər üçün)\n\n🌐 fairmont.com/baku"
+            },
+            "əlaqə": {
+                keywords: ["əlaqə", "telefon", "nömrə", "zəng", "contact", "email"],
+                answer: "📱 **Bizimlə Əlaqə:**\n\n☎️ Telefon: +994 12 565 48 46\n📱 WhatsApp: +994 51 206 37 37\n📧 Email: spareservation@fairmont.com\n🌐 Web: fairmont.com/baku\n\nSpa mərkəzi Fairmont Baku otelinin 5-ci mərtəbəsindədir."
+            },
+            "üzvlük": {
+                keywords: ["üzvlük", "membership", "kart", "abunə", "paket", "silver", "gold", "diamond", "uyelik"],
+                answer: "💎 **Üzvlük Növləri:**\n\n**Quartz Lite** - 250 AZN/ay\n**Silver** - 500 AZN/ay, 1300 AZN/3 ay, 1800 AZN/6 ay\n**Gold** - 900 AZN/ay, 1800 AZN/3 ay, 2600 AZN/6 ay\n**Diamond** - 1200 AZN/ay, 3600 AZN/illik, 5600 AZN/illik (premium)\n\n**Əsas üstünlüklər:**\n• 20-30% SPA endirim\n• 20% restoran endirim\n• Pulsuz fitness müayinəsi\n• Pulsuz masaj seansları\n• 24 saat giriş (Gold/Diamond)\n\n📞 Ətraflı: +994 12 565 48 46"
+            },
+            "qadın": {
+                keywords: ["qadın", "kişi", "kişilər", "qadınlar", "ayrı", "women", "men", "erkek", "kadin"],
+                answer: "👥 **Qadın və Kişi Saatları:**\n\nFairmont Spa-da qadın və ya kişi saatı/günü tətbiqi **yoxdur**.\n\n✅ Fitness, qapalı hovuz və digər sahələr **ümumi** istifadə üçündür.\n\n🚿 **Ayrı sahələr:**\n• Soyunub-geyinmə otaqları ayrıdır\n• Sauna və buxar otaqları qadınlar və kişilər üçün **ayrıdır**"
+            },
+            "kollagen": {
+                keywords: ["kollagen", "collagen", "purelift", "kolajen"],
+                answer: "✨ **Kollagen Lab - PURELIFT Technology:**\n\n**Kollagen & Vitamin C Üz Qulluğu**\n90 dəqiqə - 250 AZN\n• Antioksidant zəngin\n• Dərini işıqlandırır\n• Ətraf mühit zərərini azaldır\n\n**Kollagen Sculpting (Anti-Age)**\n60 dəqiqə - 190 AZN\n• Göz, dodaq, dekolte və əllər üçün\n• Xırda xətləri azaldır\n• Dəri sıxlaşdırır\n\n**Express Kollagen**\n30 dəqiqə - 90 AZN\n• Tez təsir\n• Dərini nəmləndiri"
+            },
+            "hamam": {
+                keywords: ["hamam", "türk hamamı", "kese", "köpük", "turkish bath"],
+                answer: "🛁 **Türk Hamamı - Regionun ən böyüyü!**\n\n**Body Treatment** - 40 dəqiqə\n• Buxar otağı\n• Bədən skrabi\n• Ənənəvi sabun masajı\n\n**Signature Hammam** - 60 dəqiqə\n• Buxar otağı\n• Kese tətbiqi\n• Köpük masajı\n• Bədən maskası\n• Saç yuma və kondisioner\n\n💎 Xüsusi Xəzər dənizi mənzərəli hamam"
+            },
+            "hovuz": {
+                keywords: ["hovuz", "pool", "yüzmə", "swim"],
+                answer: "🏊 **Hovuz Sahələri:**\n\n• Ağ şüşə mozaika hovuz\n• 2 Vitality hovuz\n• Açıq hovuz (Sky Garden)\n• Isidilmiş lounger-lər\n\n**Saatlar:**\n• Silver: 06:30 - 22:00\n• Gold/Diamond: 24 saat\n\n🌅 Xəzər dənizinə görünüş"
+            },
+            "gym": {
+                keywords: ["gym", "fitness", "idman", "məşq", "sport", "training"],
+                answer: "🏋️ **Fitness Mərkəzi:**\n\n⏰ **24 saat açıqdır!**\n\n✅ **Təchizat:**\n• Technogym® avadanlıqları\n• Fərdi məşq seansları\n• Yoga studiyası\n• Pilates, Aerobik, Boks\n\n👨‍🏫 Peşəkar şəxsi məşqçilər mövcuddur\n\n📞 Daha ətraflı: +994 12 565 48 46"
+            }
+        };
+
+        function getBotResponse(userMessage) {
+            const lowerMessage = userMessage.toLowerCase();
+            
+            for (const [key, data] of Object.entries(faqData)) {
+                if (data.keywords.some(keyword => lowerMessage.includes(keyword))) {
+                    return data.answer;
+                }
+            }
+            
+            if (lowerMessage.includes("salam") || lowerMessage.includes("hello") || lowerMessage.includes("sağ ol") || lowerMessage.includes("təşəkkür") || lowerMessage.includes("tesekkur")) {
+                return "Xahiş edirəm! 😊 Sizə başqa nədə kömək edə bilərəm? Üzvlük, xidmətlər, qiymətlər və ya rezervasiya haqqında soruşa bilərsiniz.";
+            }
+            
+            return "Üzr istəyirəm, bu barədə ətraflı məlumatım yoxdur. 🤔\n\nAşağıdakılar haqqında soruşa bilərsiniz:\n• İş saatları\n• Qiymətlər və xidmətlər\n• Rezervasiya\n• Üzvlük növləri\n• Ünvan və əlaqə\n\nVə ya bizimlə birbaşa əlaqə saxlayın:\n☎️ +994 12 565 48 46";
+        }
+
+        function addMessage(text, isBot) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isBot ? 'bot' : 'user'}`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.textContent = text;
+            
+            messageDiv.appendChild(contentDiv);
+            chatContainer.appendChild(messageDiv);
+            
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            if (chatContainer.children.length > 2) {
+                document.getElementById('quickQuestions').style.display = 'none';
+            }
+        }
+
+        function showTyping() {
+            document.getElementById('typingIndicator').classList.add('show');
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function hideTyping() {
+            document.getElementById('typingIndicator').classList.remove('show');
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            addMessage(message, false);
+            input.value = '';
+            
+            showTyping();
+            
+            setTimeout(() => {
+                hideTyping();
+                const response = getBotResponse(message);
+                addMessage(response, true);
+            }, 1000);
+        }
+
+        function askQuestion(question) {
+            addMessage(question, false);
+            
+            showTyping();
+            
+            setTimeout(() => {
+                hideTyping();
+                const response = getBotResponse(question);
+                addMessage(response, true);
+            }, 1000);
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Auto-focus input on load
+        window.onload = function() {
+            document.getElementById('userInput').focus();
+        };
+    </script>
+</body>
+</html>
